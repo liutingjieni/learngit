@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <unistd.h>
+#include <termios.h>
+
+#define CLEAR()             printf("\ec")              // 清屏
+#define CLOSE()             printf("\e[0m")            // 关闭所有属性
+
+typedef enum
+{
+  BLACK,
+  RED,
+  GREEN,
+  BROWN,
+  BLUE,
+  MAGENTA,
+  CYAN,
+  LIGHTGRAY,
+  DARKGRAY,
+  LIGHTRED,
+  LIGHTGREEN,
+  YELLOW,
+  LIGHTBLUE,
+  LIGHTMAGENTA,
+  LIGHTCYAN,
+  WHITE
+} COULEUR_TERMINAL;
+
+int color_printf(COULEUR_TERMINAL fg, COULEUR_TERMINAL bg, const char * format, ...)
+{
+  int res;
+  va_list args;
+  printf("\x1B[1;%02d;%02dm", fg + 30, bg + 40);
+  va_start(args, format);
+  res = vprintf(format, args);
+  va_end(args);
+  printf("\x1B[00m");
+  //　关闭printf设置的颜色等属性
+  CLOSE();
+  return res;
+}
+
+// 无缓冲输入不回显
+int getch()
+{
+	struct termios oldt, newt;
+	int ch;
+	tcgetattr(STDIN_FILENO, &oldt);
+	newt = oldt;
+	newt.c_lflag &= ~(ICANON | ECHO);
+	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+	ch = getchar();
+	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+	return ch;
+}
+
+int main(void) 
+{
+	color_printf(BLUE, CYAN, "%s", "HelloWorld\n");
+	char c[10] = {'\0'};
+	for (int i = 0; i < 10; i++) {
+		c[i] = getch();
+	}
+	printf("%s", c);
+	return 0;
+}
+

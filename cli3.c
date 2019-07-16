@@ -69,7 +69,7 @@ int main(int argc , char *argv[])
 		my_err("socket",__LINE__);
 	seve.sin_family = AF_INET;
 	seve.sin_port = htons(PORT);
-	seve.sin_addr.s_addr = htonl(INADDR_ANY);
+	inet_aton("132.232.63.90",&seve.sin_addr); 
 	if(connect(sock_fd,(struct sockaddr*)&seve,sizeof(struct sockaddr_in)) < 0)
 		my_err("connect",__LINE__);
 	recv(sock_fd,&haha , sizeof(int) , 0);
